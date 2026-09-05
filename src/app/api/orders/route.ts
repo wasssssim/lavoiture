@@ -16,6 +16,14 @@ export async function POST(req: NextRequest) {
       0
     );
 
+    // Resolve static IDs (slugs) to actual DB product IDs
+    const slugs = items.map((i: { productId: string }) => i.productId);
+    const dbProducts = await prisma.product.findMany({
+      where: { slug: { in: slugs } },
+      select: { id: true, slug: true },
+    });
+    const slugToId = new Map(dbProducts.map((p) => [p.slug, p.id]));
+
     const order = await prisma.order.create({
       data: {
         firstName: customer.firstName,
@@ -30,7 +38,7 @@ export async function POST(req: NextRequest) {
         items: {
           create: items.map(
             (i: { productId: string; price: number; quantity: number }) => ({
-              productId: i.productId,
+              productId: slugToId.get(i.productId) || i.productId,
               quantity: i.quantity,
               price: i.price,
             })
@@ -39,8 +47,6 @@ export async function POST(req: NextRequest) {
       },
       include: { items: { include: { product: true } } },
     });
-
-    // TODO: envoyer email recap avec Nodemailer
 
     return NextResponse.json({ success: true, orderId: order.id });
   } catch (error) {
