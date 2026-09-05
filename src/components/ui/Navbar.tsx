@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Phone, X, Menu, ShoppingBag } from "lucide-react";
+import { Phone, X, Menu, ShoppingBag, CalendarCheck } from "lucide-react";
 import Link from "next/link";
 
 const links = [
@@ -60,6 +60,13 @@ export default function Navbar() {
 
         <div className="hidden lg:flex items-center gap-4">
           <Link
+            href="/reservation"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold tracking-widest uppercase text-white/50 border border-white/[0.08] hover:border-red/30 hover:text-white hover:bg-white/[0.03] transition-all duration-300"
+          >
+            <CalendarCheck size={14} />
+            Reservation
+          </Link>
+          <Link
             href="/boutique"
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold tracking-widest uppercase text-white/50 border border-white/[0.08] hover:border-red/30 hover:text-white hover:bg-white/[0.03] transition-all duration-300"
           >
@@ -106,13 +113,26 @@ export default function Navbar() {
           </a>
         ))}
         <Link
-          href="/boutique"
+          href="/reservation"
           onClick={() => setOpen(false)}
           className="inline-flex items-center gap-3 px-8 py-4 rounded-full text-white/80 font-bold tracking-widest uppercase border border-white/10 hover:border-red/30 transition-colors"
           style={{
             opacity: open ? 1 : 0,
             transform: open ? "translateY(0)" : "translateY(20px)",
             transition: "opacity 0.3s ease 0.3s, transform 0.3s ease 0.3s",
+          }}
+        >
+          <CalendarCheck size={18} />
+          Reservation
+        </Link>
+        <Link
+          href="/boutique"
+          onClick={() => setOpen(false)}
+          className="inline-flex items-center gap-3 px-8 py-4 rounded-full text-white/80 font-bold tracking-widest uppercase border border-white/10 hover:border-red/30 transition-colors"
+          style={{
+            opacity: open ? 1 : 0,
+            transform: open ? "translateY(0)" : "translateY(20px)",
+            transition: "opacity 0.3s ease 0.35s, transform 0.3s ease 0.35s",
           }}
         >
           <ShoppingBag size={18} />
@@ -124,7 +144,7 @@ export default function Navbar() {
           style={{
             opacity: open ? 1 : 0,
             transform: open ? "translateY(0)" : "translateY(20px)",
-            transition: "opacity 0.3s ease 0.35s, transform 0.3s ease 0.35s",
+            transition: "opacity 0.3s ease 0.4s, transform 0.3s ease 0.4s",
           }}
         >
           <Phone size={18} />

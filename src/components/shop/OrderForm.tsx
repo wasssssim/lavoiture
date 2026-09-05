@@ -27,12 +27,40 @@ export default function OrderForm() {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // TODO: envoyer la commande par email via API route
-    // POST /api/orders { items, customer: form, total }
-    setSubmitted(true);
-    clearCart();
+    setSubmitting(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map((i) => ({
+            productId: i.product.id,
+            quantity: i.quantity,
+            price: i.product.price,
+          })),
+          customer: form,
+          total,
+        }),
+      });
+
+      if (res.ok) {
+        setSubmitted(true);
+        clearCart();
+      } else {
+        const data = await res.json();
+        setError(data.error || "Erreur lors de l'envoi de la commande");
+      }
+    } catch {
+      setError("Erreur de connexion");
+    }
+    setSubmitting(false);
   }
 
   if (submitted) {
@@ -164,12 +192,19 @@ export default function OrderForm() {
         />
       </div>
 
+      {error && (
+        <div className="p-3 rounded-xl bg-red/10 border border-red/20 text-red text-sm text-center">
+          {error}
+        </div>
+      )}
+
       <button
         type="submit"
-        className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-red to-red-dark rounded-full text-white text-sm font-bold tracking-widest uppercase hover:shadow-lg hover:shadow-red/25 hover:-translate-y-0.5 transition-all"
+        disabled={submitting}
+        className="w-full flex items-center justify-center gap-3 px-8 py-4 bg-gradient-to-r from-red to-red-dark rounded-full text-white text-sm font-bold tracking-widest uppercase hover:shadow-lg hover:shadow-red/25 hover:-translate-y-0.5 transition-all disabled:opacity-50"
       >
         <Send size={16} />
-        Envoyer la commande
+        {submitting ? "Envoi en cours..." : "Envoyer la commande"}
       </button>
     </form>
   );
