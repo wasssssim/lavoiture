@@ -12,7 +12,11 @@ import {
   Trash2,
   Eye,
   X,
+  Plus,
+  ImagePlus,
+  Save,
 } from "lucide-react";
+import Image from "next/image";
 import { CURRENCY, categoryLabels, type Category } from "@/lib/types";
 
 type Tab = "produits" | "commandes" | "reservations";
@@ -114,9 +118,13 @@ export default function AdminPage() {
 
 // ============ PRODUCTS TAB ============
 
+const categories: Category[] = ["soin", "protection", "interieur", "pack", "produit-ext", "produit-int", "accessoire"];
+
 function ProductsTab() {
   const [products, setProducts] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAdd, setShowAdd] = useState(false);
+  const [photoProduct, setPhotoProduct] = useState<Record<string, unknown> | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -136,20 +144,21 @@ function ProductsTab() {
     load();
   }
 
-  async function updateStock(id: string, stock: number) {
+  async function updateField(id: string, field: string, value: number) {
     await fetch("/api/admin/products", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, stock }),
+      body: JSON.stringify({ id, [field]: value }),
     });
     load();
   }
 
-  async function updatePrice(id: string, price: number) {
+  async function deleteProduct(id: string) {
+    if (!confirm("Supprimer ce produit ?")) return;
     await fetch("/api/admin/products", {
-      method: "PUT",
+      method: "DELETE",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, price }),
+      body: JSON.stringify({ id }),
     });
     load();
   }
@@ -160,70 +169,343 @@ function ProductsTab() {
     <div className="space-y-3 pb-12">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-bold text-white">{products.length} produits</h2>
-        <button onClick={load} className="p-2 text-white/30 hover:text-white transition-colors">
-          <RefreshCw size={16} />
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowAdd(true)}
+            className="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-wider uppercase bg-gradient-to-r from-red to-red-dark text-white"
+          >
+            <Plus size={14} />
+            Nouveau
+          </button>
+          <button onClick={load} className="p-2 text-white/30 hover:text-white transition-colors">
+            <RefreshCw size={16} />
+          </button>
+        </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="text-left text-[11px] font-bold tracking-wider uppercase text-white/30 border-b border-white/5">
-              <th className="pb-3 pr-4">Produit</th>
-              <th className="pb-3 pr-4">Categorie</th>
-              <th className="pb-3 pr-4">Prix ({CURRENCY})</th>
-              <th className="pb-3 pr-4">Stock</th>
-              <th className="pb-3">Actif</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((p) => (
-              <tr key={p.id as string} className="border-b border-white/[0.03] hover:bg-white/[0.02]">
-                <td className="py-3 pr-4">
-                  <span className="font-semibold text-white">{p.name as string}</span>
-                </td>
-                <td className="py-3 pr-4 text-white/40 text-xs">
+      {/* Product cards — responsive */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {products.map((p) => (
+          <div key={p.id as string} className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+            <div className="flex items-start gap-3 mb-3">
+              {/* Photo thumbnail */}
+              <button
+                onClick={() => setPhotoProduct(p)}
+                className="relative w-16 h-16 rounded-lg overflow-hidden bg-white/[0.03] border border-white/[0.06] flex-shrink-0 group"
+              >
+                {(p.image as string) ? (
+                  <Image
+                    src={p.image as string}
+                    alt={p.name as string}
+                    fill
+                    className="object-cover"
+                    unoptimized
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-white/20">
+                    <ImagePlus size={20} />
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <ImagePlus size={14} className="text-white" />
+                </div>
+              </button>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-white text-sm truncate">{p.name as string}</p>
+                <p className="text-[11px] text-white/30">
                   {categoryLabels[p.category as Category] || (p.category as string)}
-                </td>
-                <td className="py-3 pr-4">
+                </p>
+              </div>
+              <button
+                onClick={() => toggleActive(p.id as string, p.active as boolean)}
+                className={`w-10 h-6 rounded-full transition-colors relative flex-shrink-0 ${
+                  (p.active as boolean) ? "bg-green-500" : "bg-white/10"
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
+                    (p.active as boolean) ? "left-[18px]" : "left-0.5"
+                  }`}
+                />
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <label className="text-[10px] text-white/30 uppercase tracking-wider">Prix ({CURRENCY})</label>
+                <input
+                  type="number"
+                  defaultValue={p.price as number}
+                  onBlur={(e) => updateField(p.id as string, "price", Number(e.target.value))}
+                  className="w-full px-2 py-1.5 rounded bg-white/[0.03] border border-white/[0.06] text-white text-sm focus:outline-none focus:border-red/30"
+                />
+              </div>
+              <div className="w-20">
+                <label className="text-[10px] text-white/30 uppercase tracking-wider">Stock</label>
+                {(p.stock as number) === -1 ? (
+                  <p className="text-white/20 text-xs py-1.5 px-2">Illimite</p>
+                ) : (
                   <input
                     type="number"
-                    defaultValue={p.price as number}
-                    onBlur={(e) => updatePrice(p.id as string, Number(e.target.value))}
-                    className="w-24 px-2 py-1 rounded bg-white/[0.03] border border-white/[0.06] text-white text-sm focus:outline-none focus:border-red/30"
+                    defaultValue={p.stock as number}
+                    onBlur={(e) => updateField(p.id as string, "stock", Number(e.target.value))}
+                    className="w-full px-2 py-1.5 rounded bg-white/[0.03] border border-white/[0.06] text-white text-sm focus:outline-none focus:border-red/30"
                   />
-                </td>
-                <td className="py-3 pr-4">
-                  {(p.stock as number) === -1 ? (
-                    <span className="text-white/20 text-xs">Illimite</span>
-                  ) : (
-                    <input
-                      type="number"
-                      defaultValue={p.stock as number}
-                      onBlur={(e) => updateStock(p.id as string, Number(e.target.value))}
-                      className="w-16 px-2 py-1 rounded bg-white/[0.03] border border-white/[0.06] text-white text-sm focus:outline-none focus:border-red/30"
-                    />
-                  )}
-                </td>
-                <td className="py-3">
-                  <button
-                    onClick={() => toggleActive(p.id as string, p.active as boolean)}
-                    className={`w-10 h-6 rounded-full transition-colors relative ${
-                      (p.active as boolean) ? "bg-green-500" : "bg-white/10"
-                    }`}
-                  >
-                    <span
-                      className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
-                        (p.active as boolean) ? "left-[18px]" : "left-0.5"
-                      }`}
-                    />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                )}
+              </div>
+              <button
+                onClick={() => deleteProduct(p.id as string)}
+                className="p-2 text-white/15 hover:text-red transition-colors self-end"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
+
+      {/* Add product modal */}
+      {showAdd && <AddProductModal onClose={() => { setShowAdd(false); load(); }} />}
+
+      {/* Photo upload modal */}
+      {photoProduct && (
+        <PhotoModal
+          product={photoProduct}
+          onClose={() => { setPhotoProduct(null); load(); }}
+        />
+      )}
+    </div>
+  );
+}
+
+// ============ ADD PRODUCT MODAL ============
+
+function AddProductModal({ onClose }: { onClose: () => void }) {
+  const [form, setForm] = useState({
+    name: "",
+    description: "",
+    price: 0,
+    category: "accessoire" as Category,
+    stock: 50,
+  });
+  const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setFile(f);
+    setPreview(URL.createObjectURL(f));
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+
+    const slug = form.name
+      .toLowerCase()
+      .normalize("NFD").replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
+    let image = "";
+
+    if (file) {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("slug", slug);
+      const uploadRes = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      if (uploadRes.ok) {
+        const data = await uploadRes.json();
+        image = data.image;
+      }
+    }
+
+    await fetch("/api/admin/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...form, slug, image }),
+    });
+
+    setSaving(false);
+    onClose();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-lg bg-[#0a1120] border border-white/5 rounded-2xl p-6 max-h-[90vh] overflow-y-auto"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="font-bold text-white text-lg">Nouveau produit</h3>
+          <button type="button" onClick={onClose} className="text-white/30 hover:text-white">
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          {/* Photo */}
+          <div>
+            <label className="block text-[11px] font-bold tracking-wider uppercase text-white/40 mb-2">
+              Photo
+            </label>
+            <label className="block w-full h-40 rounded-xl border-2 border-dashed border-white/10 hover:border-red/30 cursor-pointer transition-colors overflow-hidden">
+              {preview ? (
+                <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center text-white/20">
+                  <ImagePlus size={32} />
+                  <span className="text-xs mt-2">Cliquer pour ajouter</span>
+                </div>
+              )}
+              <input type="file" accept="image/*" onChange={handleFile} className="hidden" />
+            </label>
+          </div>
+
+          <AdminInput label="Nom" value={form.name} onChange={(v) => setForm({ ...form, name: v })} required />
+          <AdminInput label="Description" value={form.description} onChange={(v) => setForm({ ...form, description: v })} textarea />
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[11px] font-bold tracking-wider uppercase text-white/40 mb-2">
+                Prix ({CURRENCY})
+              </label>
+              <input
+                type="number"
+                value={form.price}
+                onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
+                required
+                className="w-full px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-white text-sm focus:outline-none focus:border-red/30"
+              />
+            </div>
+            <div>
+              <label className="block text-[11px] font-bold tracking-wider uppercase text-white/40 mb-2">
+                Stock
+              </label>
+              <input
+                type="number"
+                value={form.stock}
+                onChange={(e) => setForm({ ...form, stock: Number(e.target.value) })}
+                className="w-full px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-white text-sm focus:outline-none focus:border-red/30"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-bold tracking-wider uppercase text-white/40 mb-2">
+              Categorie
+            </label>
+            <select
+              value={form.category}
+              onChange={(e) => setForm({ ...form, category: e.target.value as Category })}
+              className="w-full px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-white text-sm focus:outline-none focus:border-red/30"
+            >
+              {categories.map((c) => (
+                <option key={c} value={c} className="bg-[#0a1120]">
+                  {categoryLabels[c]}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={saving || !form.name}
+          className="w-full mt-6 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-red to-red-dark rounded-full text-white text-sm font-bold tracking-widest uppercase disabled:opacity-50"
+        >
+          <Save size={14} />
+          {saving ? "Enregistrement..." : "Enregistrer"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+// ============ PHOTO MODAL ============
+
+function PhotoModal({
+  product,
+  onClose,
+}: {
+  product: Record<string, unknown>;
+  onClose: () => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState(product.image as string || "");
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPreview(URL.createObjectURL(file));
+    setUploading(true);
+
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("slug", product.slug as string);
+    const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+
+    if (res.ok) {
+      const data = await res.json();
+      await fetch("/api/admin/products", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: product.id, image: data.image }),
+      });
+    }
+    setUploading(false);
+    onClose();
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="w-full max-w-sm bg-[#0a1120] border border-white/5 rounded-2xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-bold text-white text-sm">Photo — {product.name as string}</h3>
+          <button onClick={onClose} className="text-white/30 hover:text-white">
+            <X size={18} />
+          </button>
+        </div>
+
+        <div className="w-full h-48 rounded-xl overflow-hidden bg-white/[0.03] border border-white/[0.06] mb-4">
+          {preview ? (
+            <img src={preview} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-white/20">
+              <ImagePlus size={40} />
+            </div>
+          )}
+        </div>
+
+        <label className="w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-red to-red-dark rounded-full text-white text-sm font-bold tracking-widest uppercase cursor-pointer">
+          <ImagePlus size={14} />
+          {uploading ? "Upload..." : "Changer la photo"}
+          <input type="file" accept="image/*" onChange={handleFile} className="hidden" disabled={uploading} />
+        </label>
+      </div>
+    </div>
+  );
+}
+
+// ============ ADMIN INPUT HELPER ============
+
+function AdminInput({
+  label, value, onChange, required = false, textarea = false,
+}: {
+  label: string; value: string; onChange: (v: string) => void; required?: boolean; textarea?: boolean;
+}) {
+  const cls = "w-full px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-white text-sm focus:outline-none focus:border-red/30";
+  return (
+    <div>
+      <label className="block text-[11px] font-bold tracking-wider uppercase text-white/40 mb-2">
+        {label}{required && <span className="text-red ml-1">*</span>}
+      </label>
+      {textarea ? (
+        <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={3} className={`${cls} resize-none`} />
+      ) : (
+        <input type="text" value={value} onChange={(e) => onChange(e.target.value)} required={required} className={cls} />
+      )}
     </div>
   );
 }
