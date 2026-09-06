@@ -32,7 +32,7 @@ export default function Navbar() {
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-500 ${
         scrolled
           ? "bg-[#050a14]/90 backdrop-blur-xl border-b border-white/5 shadow-2xl shadow-black/30"
-          : "bg-transparent"
+          : "bg-[#050a14]/70 backdrop-blur-md lg:bg-transparent lg:backdrop-blur-none"
       }`}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between h-20 px-6">
