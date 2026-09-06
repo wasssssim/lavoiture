@@ -93,64 +93,66 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       <div
-        className={`fixed inset-0 z-40 bg-[#050a14]/98 backdrop-blur-2xl flex flex-col items-center justify-center gap-5 py-24 overflow-y-auto lg:hidden transition-all duration-300 ${
+        className={`fixed inset-0 z-40 bg-[#050a14]/98 backdrop-blur-2xl overflow-y-auto lg:hidden transition-all duration-300 ${
           open ? "opacity-100 visible" : "opacity-0 invisible"
         }`}
       >
-        {links.map((l, i) => (
-          <a
-            key={l.href}
-            href={l.href}
-            onClick={() => setOpen(false)}
-            className="text-xl font-light tracking-[0.3em] uppercase text-white/80 hover:text-red transition-colors"
-            style={{
-              opacity: open ? 1 : 0,
-              transform: open ? "translateY(0)" : "translateY(20px)",
-              transition: `opacity 0.3s ease ${i * 0.05}s, transform 0.3s ease ${i * 0.05}s`,
-            }}
-          >
-            {l.label}
-          </a>
-        ))}
-        <div className="flex flex-col items-center gap-3 mt-2">
-          <Link
-            href="/reservation"
-            onClick={() => setOpen(false)}
-            className="inline-flex items-center gap-3 px-7 py-3 rounded-full text-white/80 font-bold tracking-widest uppercase text-sm border border-white/10 hover:border-red/30 transition-colors"
-            style={{
-              opacity: open ? 1 : 0,
-              transform: open ? "translateY(0)" : "translateY(20px)",
-              transition: "opacity 0.3s ease 0.25s, transform 0.3s ease 0.25s",
-            }}
-          >
-            <CalendarCheck size={16} />
-            Reservation
-          </Link>
-          <Link
-            href="/boutique"
-            onClick={() => setOpen(false)}
-            className="inline-flex items-center gap-3 px-7 py-3 rounded-full text-white/80 font-bold tracking-widest uppercase text-sm border border-white/10 hover:border-red/30 transition-colors"
-            style={{
-              opacity: open ? 1 : 0,
-              transform: open ? "translateY(0)" : "translateY(20px)",
-              transition: "opacity 0.3s ease 0.3s, transform 0.3s ease 0.3s",
-            }}
-          >
-            <ShoppingBag size={16} />
-            Boutique
-          </Link>
-          <a
-            href="tel:0770275161"
-            className="inline-flex items-center gap-3 px-7 py-3 bg-gradient-to-r from-red to-red-dark rounded-full text-white font-bold tracking-widest uppercase text-sm"
-            style={{
-              opacity: open ? 1 : 0,
-              transform: open ? "translateY(0)" : "translateY(20px)",
-              transition: "opacity 0.3s ease 0.35s, transform 0.3s ease 0.35s",
-            }}
-          >
-            <Phone size={16} />
-            0770 27 51 61
-          </a>
+        <div className="min-h-full flex flex-col items-center justify-center gap-5 py-24 px-6">
+          {links.map((l, i) => (
+            <a
+              key={l.href}
+              href={l.href}
+              onClick={() => setOpen(false)}
+              className="text-xl font-light tracking-[0.3em] uppercase text-white/80 hover:text-red transition-colors"
+              style={{
+                opacity: open ? 1 : 0,
+                transform: open ? "translateY(0)" : "translateY(20px)",
+                transition: `opacity 0.3s ease ${i * 0.05}s, transform 0.3s ease ${i * 0.05}s`,
+              }}
+            >
+              {l.label}
+            </a>
+          ))}
+          <div className="flex flex-col items-center gap-3 mt-2">
+            <Link
+              href="/reservation"
+              onClick={() => setOpen(false)}
+              className="inline-flex items-center gap-3 px-7 py-3 rounded-full text-white/80 font-bold tracking-widest uppercase text-sm border border-white/10 hover:border-red/30 transition-colors"
+              style={{
+                opacity: open ? 1 : 0,
+                transform: open ? "translateY(0)" : "translateY(20px)",
+                transition: "opacity 0.3s ease 0.25s, transform 0.3s ease 0.25s",
+              }}
+            >
+              <CalendarCheck size={16} />
+              Reservation
+            </Link>
+            <Link
+              href="/boutique"
+              onClick={() => setOpen(false)}
+              className="inline-flex items-center gap-3 px-7 py-3 rounded-full text-white/80 font-bold tracking-widest uppercase text-sm border border-white/10 hover:border-red/30 transition-colors"
+              style={{
+                opacity: open ? 1 : 0,
+                transform: open ? "translateY(0)" : "translateY(20px)",
+                transition: "opacity 0.3s ease 0.3s, transform 0.3s ease 0.3s",
+              }}
+            >
+              <ShoppingBag size={16} />
+              Boutique
+            </Link>
+            <a
+              href="tel:0770275161"
+              className="inline-flex items-center gap-3 px-7 py-3 bg-gradient-to-r from-red to-red-dark rounded-full text-white font-bold tracking-widest uppercase text-sm"
+              style={{
+                opacity: open ? 1 : 0,
+                transform: open ? "translateY(0)" : "translateY(20px)",
+                transition: "opacity 0.3s ease 0.35s, transform 0.3s ease 0.35s",
+              }}
+            >
+              <Phone size={16} />
+              0770 27 51 61
+            </a>
+          </div>
         </div>
       </div>
     </nav>
