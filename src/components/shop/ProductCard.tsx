@@ -35,6 +35,7 @@ export default function ProductCard({ product }: { product: Product }) {
             className="object-cover group-hover:scale-105 transition-transform duration-500"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             onError={() => setImgError(true)}
+            unoptimized
           />
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">

@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { products } from "@/lib/products";
+import { useState, useEffect } from "react";
 import { Category, categoryLabels } from "@/lib/types";
 import ProductCard from "@/components/shop/ProductCard";
 
@@ -16,13 +15,45 @@ const categories: (Category | "all")[] = [
   "accessoire",
 ];
 
+type DBProduct = {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  image: string;
+  stock: number;
+};
+
 export default function BoutiquePage() {
   const [activeCategory, setActiveCategory] = useState<Category | "all">("all");
+  const [products, setProducts] = useState<DBProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then((r) => r.json())
+      .then((data) => {
+        setProducts(data);
+        setLoading(false);
+      });
+  }, []);
 
   const filtered =
     activeCategory === "all"
       ? products
       : products.filter((p) => p.category === activeCategory);
+
+  const toProduct = (p: DBProduct) => ({
+    id: p.slug || p.id,
+    name: p.name,
+    description: p.description,
+    price: p.price,
+    category: p.category as Category,
+    image: p.image,
+    inStock: p.stock === -1 || p.stock > 0,
+  });
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-12">
@@ -61,11 +92,15 @@ export default function BoutiquePage() {
       </div>
 
       {/* Products grid */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {filtered.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="text-center text-white/30 py-16">Chargement...</div>
+      ) : (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filtered.map((p) => (
+            <ProductCard key={p.id} product={toProduct(p)} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
