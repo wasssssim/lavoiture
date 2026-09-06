@@ -24,136 +24,153 @@ export default function Navbar() {
 
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [open]);
 
   return (
-    <nav
-      className="fixed top-0 inset-x-0 z-50 transition-all duration-500 backdrop-blur-xl border-b border-white/5"
-      style={{
-        backgroundColor: scrolled ? "rgba(5,10,20,0.9)" : "rgba(5,10,20,0.85)",
-      }}
-    >
-      <div className="max-w-7xl mx-auto flex items-center justify-between h-20 px-6">
-        <a href="#accueil" className="relative z-50">
-          <span className="text-xl font-extrabold tracking-[0.25em] text-white">
-            LA
-            <span className="bg-gradient-to-r from-red to-red-light bg-clip-text text-transparent">
-              VOITURE
-            </span>
-          </span>
-        </a>
-
-        <div className="hidden lg:flex items-center gap-10">
-          {links.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              className="text-[13px] font-medium tracking-[0.15em] uppercase text-white/60 hover:text-white transition-colors relative group"
-            >
-              {l.label}
-              <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-gradient-to-r from-red to-red-light group-hover:w-full transition-all duration-300" />
-            </a>
-          ))}
-        </div>
-
-        <div className="hidden lg:flex items-center gap-4">
-          <Link
-            href="/reservation"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold tracking-widest uppercase text-white/50 border border-white/[0.08] hover:border-red/30 hover:text-white hover:bg-white/[0.03] transition-all duration-300"
-          >
-            <CalendarCheck size={14} />
-            Reservation
-          </Link>
-          <Link
-            href="/boutique"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold tracking-widest uppercase text-white/50 border border-white/[0.08] hover:border-red/30 hover:text-white hover:bg-white/[0.03] transition-all duration-300"
-          >
-            <ShoppingBag size={14} />
-            Boutique
-          </Link>
-          <a
-            href="tel:0770275161"
-            className="inline-flex items-center gap-2.5 px-6 py-3 bg-gradient-to-r from-red to-red-dark rounded-full text-white text-xs font-bold tracking-widest uppercase hover:shadow-lg hover:shadow-red/25 hover:-translate-y-0.5 transition-all duration-300"
-          >
-            <Phone size={14} />
-            Appeler
-          </a>
-        </div>
-
-        <button
-          onClick={() => setOpen(!open)}
-          className="lg:hidden relative z-50 p-2 text-white"
-          aria-label="Menu"
-        >
-          {open ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {/* Mobile menu */}
+    <>
       <div
-        className={`fixed inset-0 z-40 bg-[#050a14]/98 backdrop-blur-2xl overflow-y-auto lg:hidden transition-all duration-300 ${
-          open ? "opacity-100 visible" : "opacity-0 invisible"
-        }`}
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 9999,
+          backgroundColor: scrolled ? "#050a14" : "rgba(5,10,20,0.85)",
+          borderBottom: "1px solid rgba(255,255,255,0.05)",
+          WebkitBackfaceVisibility: "hidden",
+          backfaceVisibility: "hidden",
+        }}
       >
-        <div className="min-h-full flex flex-col items-center justify-center gap-5 py-24 px-6">
-          {links.map((l, i) => (
-            <a
-              key={l.href}
-              href={l.href}
-              onClick={() => setOpen(false)}
-              className="text-xl font-light tracking-[0.3em] uppercase text-white/80 hover:text-red transition-colors"
-              style={{
-                opacity: open ? 1 : 0,
-                transform: open ? "translateY(0)" : "translateY(20px)",
-                transition: `opacity 0.3s ease ${i * 0.05}s, transform 0.3s ease ${i * 0.05}s`,
-              }}
-            >
-              {l.label}
-            </a>
-          ))}
-          <div className="flex flex-col items-center gap-3 mt-2">
+        <div className="max-w-7xl mx-auto flex items-center justify-between h-20 px-6">
+          <a href="#accueil">
+            <span className="text-xl font-extrabold tracking-[0.25em] text-white">
+              LA
+              <span className="bg-gradient-to-r from-red to-red-light bg-clip-text text-transparent">
+                VOITURE
+              </span>
+            </span>
+          </a>
+
+          <div className="hidden lg:flex items-center gap-10">
+            {links.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                className="text-[13px] font-medium tracking-[0.15em] uppercase text-white/60 hover:text-white transition-colors relative group"
+              >
+                {l.label}
+                <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-gradient-to-r from-red to-red-light group-hover:w-full transition-all duration-300" />
+              </a>
+            ))}
+          </div>
+
+          <div className="hidden lg:flex items-center gap-4">
             <Link
               href="/reservation"
-              onClick={() => setOpen(false)}
-              className="inline-flex items-center gap-3 px-7 py-3 rounded-full text-white/80 font-bold tracking-widest uppercase text-sm border border-white/10 hover:border-red/30 transition-colors"
-              style={{
-                opacity: open ? 1 : 0,
-                transform: open ? "translateY(0)" : "translateY(20px)",
-                transition: "opacity 0.3s ease 0.25s, transform 0.3s ease 0.25s",
-              }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold tracking-widest uppercase text-white/50 border border-white/[0.08] hover:border-red/30 hover:text-white hover:bg-white/[0.03] transition-all duration-300"
             >
-              <CalendarCheck size={16} />
+              <CalendarCheck size={14} />
               Reservation
             </Link>
             <Link
               href="/boutique"
-              onClick={() => setOpen(false)}
-              className="inline-flex items-center gap-3 px-7 py-3 rounded-full text-white/80 font-bold tracking-widest uppercase text-sm border border-white/10 hover:border-red/30 transition-colors"
-              style={{
-                opacity: open ? 1 : 0,
-                transform: open ? "translateY(0)" : "translateY(20px)",
-                transition: "opacity 0.3s ease 0.3s, transform 0.3s ease 0.3s",
-              }}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold tracking-widest uppercase text-white/50 border border-white/[0.08] hover:border-red/30 hover:text-white hover:bg-white/[0.03] transition-all duration-300"
             >
-              <ShoppingBag size={16} />
+              <ShoppingBag size={14} />
               Boutique
             </Link>
             <a
               href="tel:0770275161"
-              className="inline-flex items-center gap-3 px-7 py-3 bg-gradient-to-r from-red to-red-dark rounded-full text-white font-bold tracking-widest uppercase text-sm"
-              style={{
-                opacity: open ? 1 : 0,
-                transform: open ? "translateY(0)" : "translateY(20px)",
-                transition: "opacity 0.3s ease 0.35s, transform 0.3s ease 0.35s",
-              }}
+              className="inline-flex items-center gap-2.5 px-6 py-3 bg-gradient-to-r from-red to-red-dark rounded-full text-white text-xs font-bold tracking-widest uppercase hover:shadow-lg hover:shadow-red/25 hover:-translate-y-0.5 transition-all duration-300"
             >
-              <Phone size={16} />
-              0770 27 51 61
+              <Phone size={14} />
+              Appeler
             </a>
           </div>
+
+          <button
+            onClick={() => setOpen(!open)}
+            className="lg:hidden p-2 text-white"
+            aria-label="Menu"
+          >
+            {open ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
       </div>
-    </nav>
+
+      {/* Mobile menu overlay */}
+      {open && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 10000,
+            backgroundColor: "#050a14",
+          }}
+          className="overflow-y-auto lg:hidden"
+        >
+          <div className="flex items-center justify-between h-20 px-6">
+            <a href="#accueil" onClick={() => setOpen(false)}>
+              <span className="text-xl font-extrabold tracking-[0.25em] text-white">
+                LA
+                <span className="bg-gradient-to-r from-red to-red-light bg-clip-text text-transparent">
+                  VOITURE
+                </span>
+              </span>
+            </a>
+            <button
+              onClick={() => setOpen(false)}
+              className="p-2 text-white"
+              aria-label="Fermer"
+            >
+              <X size={24} />
+            </button>
+          </div>
+          <div className="flex flex-col items-center gap-5 py-12 px-6">
+            {links.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                onClick={() => setOpen(false)}
+                className="text-xl font-light tracking-[0.3em] uppercase text-white/80 hover:text-red transition-colors"
+              >
+                {l.label}
+              </a>
+            ))}
+            <div className="flex flex-col items-center gap-3 mt-4">
+              <Link
+                href="/reservation"
+                onClick={() => setOpen(false)}
+                className="inline-flex items-center gap-3 px-7 py-3 rounded-full text-white/80 font-bold tracking-widest uppercase text-sm border border-white/10 hover:border-red/30 transition-colors"
+              >
+                <CalendarCheck size={16} />
+                Reservation
+              </Link>
+              <Link
+                href="/boutique"
+                onClick={() => setOpen(false)}
+                className="inline-flex items-center gap-3 px-7 py-3 rounded-full text-white/80 font-bold tracking-widest uppercase text-sm border border-white/10 hover:border-red/30 transition-colors"
+              >
+                <ShoppingBag size={16} />
+                Boutique
+              </Link>
+              <a
+                href="tel:0770275161"
+                className="inline-flex items-center gap-3 px-7 py-3 bg-gradient-to-r from-red to-red-dark rounded-full text-white font-bold tracking-widest uppercase text-sm"
+              >
+                <Phone size={16} />
+                0770 27 51 61
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
